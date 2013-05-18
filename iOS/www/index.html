@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TestFlightPG</title>
+
+    <script type="text/javascript" src="cordova-2.7.0.js"></script>
+    <script type="text/javascript" src="testflight.js"></script>
+    <script type="text/javascript">
+
+        document.addEventListener('deviceready', onDeviceReady, false);
+
+        function onDeviceReady() {
+            console.log('Device Ready');
+
+            // Require the TestFlight SDK
+            window.TF = cordova.require("cordova/plugin/testflightsdk");
+
+            // Identify the current Device
+            TF.setDeviceIdentifier(function(){
+                console.log('Device Identify Success');
+            }, function(){
+                console.log('Device Identify Fail');
+            }, window.device.uuid);
+
+            // Start the TestFlight session
+            TF.takeOff(function(){
+                console.log('Take Off Success');
+            }, function(){
+                console.log('Take Off Fail');
+            }, '<APP TOKEN HERE>');
+        }
+
+        function doTrackLink(name){
+            console.log('Tracking Link: ' + name);
+
+            // Pass the Checkpoint to the TestFlight SDK
+            TF.passCheckpoint(function(){
+                console.log('Pass Checkpoint Success');
+            }, function(){
+                console.log('Pass Checkpoint Fail');
+            }, name);
+        }
+    </script>
+</head>
+<body>
+    <a onclick="doTrackLink('Awesome Feature 1')">Awesome Feature 1</a>
+    <br/><br/>
+    <a onclick="doTrackLink('Awesome Feature 2')">Awesome Feature 2</a>
+
+</body>
+</html>
