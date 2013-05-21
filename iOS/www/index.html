@@ -10,7 +10,6 @@
         document.addEventListener('deviceready', onDeviceReady, false);
 
         function onDeviceReady() {
-            console.log('Device Ready');
 
             // Require the TestFlight SDK
             window.TF = cordova.require("cordova/plugin/testflightsdk");
@@ -22,9 +21,21 @@
                 console.log('Device Identify Fail');
             }, window.device.uuid);
 
+            TF.addCustomEnvironmentInformation(function(){
+                console.log('Add Custom Environment Info Success');
+            }, function(){
+                console.log('Add Custom Environment Info Failure');
+            }, 'My Environment Variable', 'Some environment info');
+
             // Start the TestFlight session
             TF.takeOff(function(){
                 console.log('Take Off Success');
+
+                TF.remoteLog(function(){
+                    console.log('Remote Log Success');
+                }, function(){
+                    console.log('Remote Log Failure');
+                }, 'Take Off Success');
             }, function(){
                 console.log('Take Off Fail');
             }, '<APP TOKEN HERE>');
@@ -40,12 +51,83 @@
                 console.log('Pass Checkpoint Fail');
             }, name);
         }
+
+        function doOpenFeedback(){
+            console.log('Opening Feedback');
+
+            // Open the TestFlight SDK's feedback form
+            TF.openFeedbackView(function(){
+                console.log('Feedback Callback Success');
+            }, function(){
+                console.log('Feedback Callback Failure')
+            });
+        }
+
+        function doCustomFeedback(){
+            console.log('Opening Custom Feedback');
+
+            var feedbackForm = document.querySelectorAll('#customFeedback')[0];
+
+            if(feedbackForm.style.display === 'none'){
+                feedbackForm.style.display = 'block';
+            } else {
+                feedbackForm.style.display = 'none';
+            }
+        }
+
+        function submitCustomFeedback(){
+            console.log('Submitting Custom Feedback');
+
+            // Get references to our form and fields, and build our feedback string
+            var feedbackForm    = document.querySelectorAll('#customFeedback')[0],
+                feedbackField   = document.querySelectorAll('#feedback')[0],
+                ratingField     = document.querySelectorAll('#rating')[0],
+                feedbackString  = 'Feedback: ' + feedbackField.value + '. Rating: ' + ratingField.value;
+
+            // hide the form
+            feedbackForm.style.display = 'none';
+
+            // Submit our custom feedback string
+            TF.submitFeedback(function(){
+                console.log('Custom Feedback Submit Success');
+            }, function(){
+                console.log('Custom Feedback Submit Failure');
+            }, feedbackString);
+        }
     </script>
 </head>
 <body>
-    <a onclick="doTrackLink('Awesome Feature 1')">Awesome Feature 1</a>
+    <a href="#" onclick="doTrackLink('Awesome Feature 1')">Awesome Feature 1</a>
     <br/><br/>
-    <a onclick="doTrackLink('Awesome Feature 2')">Awesome Feature 2</a>
+    <a href="#" onclick="doTrackLink('Awesome Feature 2')">Awesome Feature 2</a>
+    <br/><br/>
+    <a href="#" onclick="doOpenFeedback()">Submit Feedback</a>
+    <br/><br/>
+    <a href="#" onclick="doCustomFeedback()">Custom Feedback</a>
+
+    <div id="customFeedback" style="display: none;">
+        <h1>Custom Feedback</h1>
+
+        <label for="feedback">Feedback</label>
+        <br/>
+        <textarea id="feedback"></textarea>
+
+        <br/><br/>
+
+        <label for="rating">Rating</label>
+        <br/>
+        <select id="rating">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+        </select>
+
+        <br/><br/>
+
+        <button onclick="submitCustomFeedback()">Submit</button>
+    </div>
 
 </body>
 </html>
